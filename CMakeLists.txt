@@ -1,0 +1,28 @@
+
+cmake_minimum_required(VERSION 3.0.2 FATAL_ERROR)
+set(CMAKE_LEGACY_CYGWIN_WIN32 0)
+
+project("Contacts Translator")
+set("PROJECT_BINARY_NAME" "TranslateContacts")
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
+    "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
+)
+    set ("CMAKE_CXX_FLAGS" "-Wall -Wextra -std=c++17 -ggdb -pthread")
+    set ("CMAKE_C_FLAGS"   "-Wall -Wextra -std=c++17 -ggdb -pthread")
+endif()
+
+set("CMAKE_ARCHIVE_OUTPUT_DIRECTORY" ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+set("CMAKE_LIBRARY_OUTPUT_DIRECTORY" ${CMAKE_CURRENT_SOURCE_DIR}/lib)
+set("CMAKE_RUNTIME_OUTPUT_DIRECTORY" ${CMAKE_CURRENT_SOURCE_DIR}/bin)
+
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+file(GLOB_RECURSE PROJECT_SOURCES "src/*.cpp")
+add_executable(${PROJECT_BINARY_NAME} ${PROJECT_SOURCES})
+
+add_custom_target(run
+    COMMENT "Executing the '${PROJECT_NAME}' binary (bin/${PROJECT_BINARY_NAME})..."
+    COMMAND "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${PROJECT_BINARY_NAME}")
+add_dependencies(run ${PROJECT_BINARY_NAME})
