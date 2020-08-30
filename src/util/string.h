@@ -11,4 +11,7 @@ namespace util
     auto pad_string_inplace(std::string&, size_t, char = ' ')
         -> std::string&;
 
+    auto repeat_string(const std::string&, size_t)
+        -> std::string;
+
 }

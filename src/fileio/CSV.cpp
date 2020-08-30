@@ -64,6 +64,7 @@ auto fileio::CSVTable::str() const -> std::string
 {
     if (empty()) return "";
 
+    // Calculate widths of each column
     std::vector<size_t> widths;
     widths.reserve(cols());
     for (size_t j = 0; j < cols(); ++j) {
@@ -75,20 +76,37 @@ auto fileio::CSVTable::str() const -> std::string
     }
 
     std::ostringstream ss;
-    ss << util::pad_string(at(0).at(0).str(), widths.at(0));
+    // top border
+    ss << "╭─" << util::repeat_string("─", widths.at(0));
+    for (size_t i = 1; i < widths.size(); ++i)
+        ss << "───" << util::repeat_string("─", widths.at(i));
+    ss << "─╮" << std::endl;
+    // header items
+    ss << "│ " << util::pad_string(at(0).at(0).str(), widths.at(0));
     for (size_t j = 1; j < cols(); ++j) {
-        ss << " | " << util::pad_string(at(0).at(j).str(), widths.at(j));
+        ss << " ┊ " << util::pad_string(at(0).at(j).str(), widths.at(j));
     }
-    ss << std::endl << std::string(widths.at(0), '-');
-    for (size_t j = 1; j < widths.size(); ++j) {
-        ss << "-+-" << std::string(widths.at(j), '-');
+    ss << " │" << std::endl;
+    // header divider
+    ss << "│ " << util::repeat_string("┄", widths.at(0));
+    for (size_t j = 1; j < cols(); ++j) {
+        ss << "┄┼┄" << util::repeat_string("┄", widths.at(j));
     }
+    ss << " │" << std::endl;
+    // csv entries
     for (size_t i = 1; i < rows(); ++i) {
-        ss << std::endl << util::pad_string(at(i).at(0).str(), widths.at(0));
+        ss << "│ " << util::pad_string(at(i).at(0).str(), widths.at(0));
         for (size_t j = 1; j < cols(); ++j) {
-            ss << " | " << util::pad_string(at(i).at(j).str(), widths.at(j));
+            ss << " ┊ " << util::pad_string(at(i).at(j).str(), widths.at(j));
         }
+        ss << " │" << std::endl;
     }
+    // bottom border
+    ss << "╰─" << util::repeat_string("─", widths.at(0));
+    for (size_t i = 1; i < widths.size(); ++i)
+        ss << "───" << util::repeat_string("─", widths.at(i));
+    ss << "─╯";
+
     return ss.str();
 }
 /******************************************************************************/
