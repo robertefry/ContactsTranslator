@@ -64,7 +64,7 @@ auto fileio::CSVTable::str() const -> std::string
     return ss.str();
 }
 
-auto fileio::CSVReader::ReadTable(std::istream& istr, char delim)
+auto fileio::CSVReader::ReadCSVTable(std::istream& istr, char delim)
     -> fileio::CSVTable
 {
     CSVTable table;
@@ -87,8 +87,8 @@ auto fileio::CSVReader::ReadTable(std::istream& istr, char delim)
     return table;
 }
 
-auto fileio::CSVReader::ReadTable(const std::string& str, char delim) -> CSVTable
+auto fileio::CSVReader::ReadCSVTable(const std::string& str, char delim) -> CSVTable
 {
     std::istringstream istr(str);
-    return CSVReader::ReadTable(istr, delim);
+    return CSVReader::ReadCSVTable(istr, delim);
 }

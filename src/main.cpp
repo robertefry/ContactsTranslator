@@ -1,6 +1,5 @@
 
 #include "fileio/CSV.h"
-#include "util/string.h"
 
 #include <iostream>
 
@@ -11,7 +10,6 @@ int main()
         "Robert,Fry,robert.fry@email.com\n"
         "Andrew,Fry,andrew.fry@email.com";
 
-    auto table = fileio::CSVReader::ReadTable(csv, ',');
+    auto table = fileio::CSVReader::ReadCSVTable(csv, ',');
     std::cout << table.str() << std::endl;
-
 }

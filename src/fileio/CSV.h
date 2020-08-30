@@ -1,4 +1,6 @@
 
+#pragma once
+
 #include <istream>
 #include <string>
 #include <vector>
@@ -29,9 +31,9 @@ public:
 
 namespace CSVReader
 {
-    auto ReadTable(std::istream&, char delim)
+    auto ReadCSVTable(std::istream&, char delim)
         -> CSVTable;
-    auto ReadTable(const std::string&, char delim)
+    auto ReadCSVTable(const std::string&, char delim)
         -> CSVTable;
 }
 
