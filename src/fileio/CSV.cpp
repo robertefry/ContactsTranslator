@@ -6,9 +6,29 @@
 #include <iostream>
 #include <numeric>
 
-auto fileio::CSVCell::str() const -> std::string
+/******************************************************************************/
+/* CSVCell ********************************************************************/
+fileio::CSVCell::CSVCell(std::string&& str)
+{
+    this->assign(std::forward<std::string>(str));
+}
+
+fileio::CSVCell::CSVCell(const char* str)
+{
+    this->assign(str);
+}
+
+auto fileio::CSVCell::str() const -> const std::string&
 {
     return *this;
+}
+/******************************************************************************/
+
+/******************************************************************************/
+/* CSVRow *********************************************************************/
+fileio::CSVRow::CSVRow(std::initializer_list<CSVCell>&& cells)
+{
+    this->assign(std::forward<std::initializer_list<CSVCell>>(cells));
 }
 
 auto fileio::CSVRow::str() const -> std::string
@@ -20,6 +40,14 @@ auto fileio::CSVRow::str() const -> std::string
         ss << ", " << at(i).str();
     }
     return ss.str();
+}
+/******************************************************************************/
+
+/******************************************************************************/
+/* CSVTable *******************************************************************/
+fileio::CSVTable::CSVTable(std::initializer_list<CSVRow>&& rows)
+{
+    this->assign(std::forward<std::initializer_list<CSVRow>>(rows));
 }
 
 auto fileio::CSVTable::rows() const -> size_t
@@ -63,7 +91,10 @@ auto fileio::CSVTable::str() const -> std::string
     }
     return ss.str();
 }
+/******************************************************************************/
 
+/******************************************************************************/
+/* CSVReader ******************************************************************/
 auto fileio::CSVReader::ReadCSVTable(std::istream& istr, char delim)
     -> fileio::CSVTable
 {
@@ -92,3 +123,4 @@ auto fileio::CSVReader::ReadCSVTable(const std::string& str, char delim) -> CSVT
     std::istringstream istr(str);
     return CSVReader::ReadCSVTable(istr, delim);
 }
+/******************************************************************************/
