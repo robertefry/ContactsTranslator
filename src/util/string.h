@@ -38,7 +38,4 @@ namespace util
         return result;
     }
 
-    auto repeat_string(const std::string&, size_t)
-        -> std::string;
-
 }
