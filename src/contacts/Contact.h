@@ -1,87 +1,119 @@
 
 #pragma once
 
+#include "fileio/CSV.h"
+
 #include <string>
 #include <vector>
 
-class ContactName : public std::string
+class ContactName
 {
 public:
-    ContactName() = default;
-    ContactName(const char*);
-    ContactName(std::string&&);
+    explicit ContactName() = default;
+    ContactName(const std::string&);
 
     auto format() -> ContactName&;
-    auto str() const -> const std::string&;
+    auto str() const -> std::string;
+
+public:
+    std::string contact_name{};
 };
 
-struct ContactDOB
+class ContactDOB
 {
-    std::string year;
-    std::string month;
-    std::string day;
+public:
+    explicit ContactDOB() = default;
+    ContactDOB(const std::string& day, const std::string& month, const std::string& year);
 
     auto format() -> ContactDOB&;
+    auto str() const -> std::string;
+
+public:
+    std::string year{};
+    std::string month{};
+    std::string day{};
 };
 
-class EmailAddress : public std::string
+class EmailAddress
 {
 public:
     EmailAddress() = default;
-    EmailAddress(const char*);
-    EmailAddress(std::string&&);
+    EmailAddress(const std::string&);
 
     auto format() -> EmailAddress&;
-    auto isValid() const -> bool;
-    auto str() const -> const std::string&;
+    auto str() const -> std::string;
+
+public:
+    std::string email_address{};
 };
 
-class PhoneNumber : public std::string
+class PhoneNumber
 {
 public:
-    PhoneNumber() = default;
-    PhoneNumber(const char*);
-    PhoneNumber(std::string&&);
+    explicit PhoneNumber() = default;
+    PhoneNumber(const std::string&);
 
     auto format() -> PhoneNumber&;
-    auto str() const -> const std::string&;
+    auto str() const -> std::string;
+
+public:
+    std::string phone_number{};
 };
 
-struct ContactAddress
+class ContactAddress
 {
+public:
+    explicit ContactAddress() = default;
+    ContactAddress(const std::string& address_1, const std::string& address_2,
+        const std::string& city, const std::string& county,
+        const std::string& country, const std::string& postcode );
+
+    auto format() -> ContactAddress&;
+    auto str() const -> std::string;
+
+public:
     std::string address_1;
     std::string address_2;
     std::string city;
     std::string county;
     std::string country;
     std::string postcode;
-
-    auto format() -> ContactAddress&;
 };
 
-struct ContactJob
+class ContactJob
 {
+public:
+    explicit ContactJob() = default;
+    ContactJob(const std::string& job_title,
+        const std::string& department, const std::string& organisation);
+
+    auto format() -> ContactJob&;
+    auto str() const -> std::string;
+
+public:
     std::string job_title;
     std::string department;
     std::string organisation;
-
-    auto format() -> ContactJob&;
 };
 
-class WebsiteAddress : public std::string
+class WebsiteAddress
 {
 public:
-    WebsiteAddress();
-    WebsiteAddress(const char*);
-    WebsiteAddress(std::string&&);
+    explicit WebsiteAddress() = default;
+    WebsiteAddress(const std::string&);
 
     auto format() -> WebsiteAddress&;
+    auto str() const -> std::string;
+
+public:
+    std::string address;
 };
 
 class Contact
 {
 public:
-    auto populateFromCSVEntry() -> Contact&;
+    Contact() = default;
+    // TODO Contact(const fileio::CSVRow&);
 
 protected:
     ContactName m_FirstName{};

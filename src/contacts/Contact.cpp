@@ -7,28 +7,28 @@
 #include <map>
 #include <initializer_list>
 #include <algorithm>
+#include <regex>
 
-ContactName::ContactName(const char* str)
+ContactName::ContactName(const std::string& str)
+    : contact_name{str}
 {
-    this->assign(str);
-    format();
-}
-
-ContactName::ContactName(std::string&& str)
-{
-    this->assign(str);
     format();
 }
 
 auto ContactName::format() -> ContactName&
 {
-    util::format_as_1line_proper_noun_inplace(*this);
+    util::format_as_1line_proper_noun_inplace(contact_name);
     return *this;
 }
 
-auto ContactName::str() const -> const std::string&
+auto ContactName::str() const -> std::string
 {
-    return *this;
+    return contact_name;
+}
+
+ContactDOB::ContactDOB(const std::string& day, const std::string& month, const std::string& year)
+    : day{day}, month{month}, year(year)
+{
 }
 
 auto ContactDOB::format() -> ContactDOB&
@@ -48,54 +48,44 @@ auto ContactDOB::format() -> ContactDOB&
     std::remove_if(day.begin(), day.end(), util::is_whitespace);
 }
 
-EmailAddress::EmailAddress(const char* str)
+auto ContactDOB::str() const -> std::string
 {
-    this->assign(str);
-    format();
+    std::stringstream ss;
+    ss << day << " " << month << " " << year;
+    return ss.str();
 }
 
-EmailAddress::EmailAddress(std::string&& str)
+EmailAddress::EmailAddress(const std::string& str)
+    : email_address{str}
 {
-    this->assign(std::forward<std::string>(str));
     format();
 }
 
 auto EmailAddress::format() -> EmailAddress&
 {
     // remove all whitespace
-    std::remove_if(this->begin(), this->end(), util::is_whitespace);
+    std::remove_if(email_address.begin(), email_address.end(), util::is_whitespace);
 }
 
-auto EmailAddress::isValid() const -> bool
+auto EmailAddress::str() const -> std::string
 {
-    return true;
+    return email_address;
 }
 
-auto EmailAddress::str() const -> const std::string&
+PhoneNumber::PhoneNumber(const std::string& str)
+    : phone_number{str}
 {
-    return *this;
-}
-
-PhoneNumber::PhoneNumber(const char* str)
-{
-    this->assign(str);
-    format();
-}
-
-PhoneNumber::PhoneNumber(std::string&& str)
-{
-    this->assign(std::forward<std::string>(str));
     format();
 }
 
 auto PhoneNumber::format() -> PhoneNumber&
 {
     // remove all whitespace
-    std::remove_if(this->begin(), this->end(), util::is_whitespace);
+    std::remove_if(phone_number.begin(), phone_number.end(), util::is_whitespace);
 
     // place iterator at the end of the country calling code
-    auto stritr = this->begin();
-    if (at(0) == '+' && size() >= 3)
+    auto stritr = phone_number.begin();
+    if (phone_number.at(0) == '+' && phone_number.size() >= 3)
     {
         const std::map<char,std::initializer_list<char>> long_callcode_map {
             {'0', {  } },
@@ -109,7 +99,9 @@ auto PhoneNumber::format() -> PhoneNumber&
             {'8', { '0', '5', '7', '8' } },
             {'9', { '6', '7', '9' } }
         };
-        if (util::multi_compare_or(at(2), long_callcode_map.at(at(1)))) {
+        if (util::multi_compare_or(phone_number.at(2),
+            long_callcode_map.at(phone_number.at(1)) ))
+        {
             stritr += 4;
         } else {
             stritr += 3;
@@ -117,20 +109,38 @@ auto PhoneNumber::format() -> PhoneNumber&
     }
 
     // Insert spaces where formatting requires
-    if (stritr != this->begin()) {
-        this->insert(stritr, ' ');
+    if (stritr != phone_number.begin()) {
+        phone_number.insert(stritr, ' ');
     }
-    if (stritr + 6 < this->end()) {
+    if (stritr + 6 < phone_number.end()) {
         stritr += 6;
-        this->insert(stritr, ' ');
+        phone_number.insert(stritr, ' ');
     }
 
     return *this;
 }
 
-auto PhoneNumber::str() const -> const std::string&
+auto PhoneNumber::str() const -> std::string
 {
-    return *this;
+    return phone_number;
+}
+
+ContactAddress::ContactAddress(
+    const std::string& address_1,
+    const std::string& address_2,
+    const std::string& city,
+    const std::string& county,
+    const std::string& country,
+    const std::string& postcode
+)
+    : address_1{address_1}
+    , address_2{address_2}
+    , city{city}
+    , county{county}
+    , country{country}
+    , postcode{postcode}
+{
+    format();
 }
 
 auto ContactAddress::format() -> ContactAddress&
@@ -157,6 +167,26 @@ auto ContactAddress::format() -> ContactAddress&
     return *this;
 }
 
+auto ContactAddress::str() const -> std::string
+{
+    std::stringstream ss;
+    ss << address_1 << std::endl << address_2 << std::endl << city << std::endl
+        << county << std::endl << county << std::endl << postcode;
+    return ss.str();
+}
+
+ContactJob::ContactJob(
+    const std::string& job_title,
+    const std::string& department,
+    const std::string& organisation
+)
+    : job_title{job_title}
+    , department{department}
+    , organisation{organisation}
+{
+    format();
+}
+
 auto ContactJob::format() -> ContactJob&
 {
     // format job_title
@@ -171,8 +201,21 @@ auto ContactJob::format() -> ContactJob&
     return *this;
 }
 
+auto ContactJob::str() const -> std::string
+{
+    std::stringstream ss;
+    ss << job_title << ", " << department << ", " << organisation;
+    return ss.str();
+}
+
+WebsiteAddress::WebsiteAddress(const std::string& address)
+    : address{address}
+{
+    format();
+}
+
 auto WebsiteAddress::format() -> WebsiteAddress&
 {
-    util::trim_string_inplace(*this);
+    util::trim_string_inplace(address);
     return *this;
 }
