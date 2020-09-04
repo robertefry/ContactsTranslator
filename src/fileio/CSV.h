@@ -4,37 +4,58 @@
 #include <istream>
 #include <string>
 #include <vector>
+#include <initializer_list>
 
 namespace fileio
 {
 
-class CSVCell : public std::string
-{
-public:
-    CSVCell() = default;
-    CSVCell(std::string&&);
-    CSVCell(const char*);
+class CSVCell;
+class CSVRow;
+class CSVTable;
 
-    auto str() const -> const std::string&;
+class CSVCell
+{
+    friend CSVRow;
+
+public:
+    explicit CSVCell() = default;
+    CSVCell(const std::string&);
+
+    inline auto row() const { return m_Row; }
+    inline auto col() const { return m_Col; }
+    inline auto str() const -> const std::string& { return m_String; }
+
+protected:
+    size_t m_Row{};
+    size_t m_Col{};
+    std::string m_String{};
 };
 
 class CSVRow : public std::vector<CSVCell>
 {
+    friend CSVTable;
+
 public:
-    CSVRow() = default;
-    CSVRow(std::initializer_list<CSVCell>&&);
+    explicit CSVRow() = default;
+    CSVRow(const std::initializer_list<CSVCell>&);
+
+    inline auto row() const { return m_Row; }
+    auto ncols() const -> size_t;
 
     auto str() const -> std::string;
+
+protected:
+    size_t m_Row{};
 };
 
 class CSVTable : public std::vector<CSVRow>
 {
 public:
-    CSVTable() = default;
-    CSVTable(std::initializer_list<CSVRow>&&);
+    explicit CSVTable() = default;
+    CSVTable(const std::initializer_list<CSVRow>&);
 
-    auto rows() const -> size_t;
-    auto cols() const -> size_t;
+    auto nrows() const -> size_t;
+    auto ncols() const -> size_t;
 
     auto str() const -> std::string;
 };
