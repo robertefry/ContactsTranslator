@@ -2,7 +2,7 @@
 #pragma once
 
 #include "fileio/CSV.h"
-#include "util/serial.h"
+#include "util/hash.h"
 
 #include <string>
 #include <unordered_set>
@@ -42,12 +42,40 @@ public:
     std::string MobilePhoneNumber{};
     std::string HomePhoneNumber{};
     std::string WorkPhoneNumber{};
+
+    friend bool operator==(const Contact& contact1, const Contact& contact2);
 };
+
+bool operator==(const Contact& contact1, const Contact& contact2)
+{
+    if (contact1.FirstName != contact2.FirstName) return false;
+    if (contact1.LastName != contact2.LastName) return false;
+    if (contact1.DisplayName != contact2.DisplayName) return false;
+    if (contact1.EmailAddress1 != contact2.EmailAddress1) return false;
+    if (contact1.EmailAddress2 != contact2.EmailAddress2) return false;
+    if (contact1.MobilePhoneNumber != contact2.MobilePhoneNumber) return false;
+    if (contact1.HomePhoneNumber != contact2.HomePhoneNumber) return false;
+    if (contact1.WorkPhoneNumber != contact2.WorkPhoneNumber) return false;
+    return true;
+}
+
+namespace std {
+    template<>
+    struct hash<Contact>
+    {
+        size_t operator()(const Contact& contact) const noexcept
+        {
+            return util::hash_combine(0,
+                contact.FirstName, contact.LastName, contact.DisplayName,
+                contact.EmailAddress1, contact.EmailAddress2,
+                contact.MobilePhoneNumber, contact.HomePhoneNumber, contact.WorkPhoneNumber );
+        }
+    };
+}
 
 class AddressBook
 {
-    using ContactSet = std::unordered_set<Contact,
-        util::serial_hash<Contact>,util::serial_equal_to<Contact> >;
+    using ContactSet = std::unordered_set<Contact>;
 
 public:
     explicit AddressBook() = default;
