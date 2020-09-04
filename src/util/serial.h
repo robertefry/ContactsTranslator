@@ -23,7 +23,7 @@ namespace util
     template <typename _Tp>
     struct serial_equal_to
     {
-        bool operator()(const _Tp& obj1, const _Tp& obj2)
+        bool operator()(const _Tp& obj1, const _Tp& obj2) const noexcept
         {
             const char* serial1 = reinterpret_cast<const char*>(&obj1);
             const char* serial2 = reinterpret_cast<const char*>(&obj2);
@@ -33,6 +33,23 @@ namespace util
                 if (serial1[i] != serial2[i]) return false;
             }
             return true; // serial1 == serial2
+        }
+    };
+
+    template <typename _Tp>
+    struct serial_less
+    {
+        bool operator()(const _Tp& obj1, const _Tp& obj2) const noexcept
+        {
+            const char* serial1 = reinterpret_cast<const char*>(&obj1);
+            const char* serial2 = reinterpret_cast<const char*>(&obj2);
+            size_t length = sizeof(_Tp);
+
+            for (size_t i = 0; i < length; ++i) {
+                if (serial1[i] < serial2[i]) return true;
+                if (serial1[i] > serial2[i]) return false;
+            }
+            return false; // serial1 == serial2
         }
     };
 

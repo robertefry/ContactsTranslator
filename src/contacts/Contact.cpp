@@ -20,7 +20,7 @@ ContactHeader::ContactHeader(const fileio::CSVRow& header)
         return field_matches;
     };
 
-    constexpr auto find_field_index = [](const auto& cells, const auto& regex)
+    constexpr auto find_field_index = [](const auto& cells, const auto& regex) -> long
     {
         const fileio::CSVCell* bestmatch;
         for (const auto& cell : cells) {
@@ -39,13 +39,13 @@ ContactHeader::ContactHeader(const fileio::CSVRow& header)
             std::regex{"(e[_\\- ]?)?mail", std::regex::icase});
 
         if (email_address_list.size() >= 1) {
-            const size_t index1 = email_address_list[0].col();
+            const auto index1 = email_address_list[0].col();
             EmailAddress1Extractor = [&index1](const fileio::CSVRow& row) {
                 return row[index1].str();
             };
         }
         if (email_address_list.size() >= 2) {
-            const size_t index2 = email_address_list[1].col();
+            const auto index2 = email_address_list[1].col();
             EmailAddress2Extractor = [&index2](const fileio::CSVRow& row) {
                 return row[index2].str();
             };
@@ -54,19 +54,19 @@ ContactHeader::ContactHeader(const fileio::CSVRow& header)
 
     // find phone numbers
     {
-        const size_t index_mobile_number = find_field_index(header,
+        const auto index_mobile_number = find_field_index(header,
             std::regex{"mob(ile)?\\s?(phone)?\\s?n(o|um(ber)?)?", std::regex::icase} );
         MobilePhoneNumberExtractor = [&index_mobile_number](const fileio::CSVRow& row) {
             return row[index_mobile_number].str();
         };
 
-        const size_t index_home_number = find_field_index(header,
+        const auto index_home_number = find_field_index(header,
             std::regex{"home\\s?(phone)?\\s?n(o|um(ber)?)?", std::regex::icase} );
         HomePhoneNumberExtractor = [&index_home_number](const fileio::CSVRow& row) {
             return row[index_home_number].str();
         };
 
-        const size_t index_work_number = find_field_index(header,
+        const auto index_work_number = find_field_index(header,
             std::regex{"work\\s?(phone)?\\s?n(o|um(ber)?)?", std::regex::icase} );
         WorkPhoneNumberExtractor = [&index_work_number](const fileio::CSVRow& row) {
             return row[index_work_number].str();
@@ -75,19 +75,19 @@ ContactHeader::ContactHeader(const fileio::CSVRow& header)
 
     // find names
     {
-        const size_t index_firstname = find_field_index(header,
+        const auto index_firstname = find_field_index(header,
             std::regex{"f(i?r)?(st)?\\s[\\s\\w]*name", std::regex::icase} );
         FirstNameExtractor = [&index_firstname](const fileio::CSVRow& row) {
             return row[index_firstname].str();
         };
 
-        const size_t index_lastname = find_field_index(header,
+        const auto index_lastname = find_field_index(header,
             std::regex{"la?(st)?\\s[\\s\\w]*name", std::regex::icase} );
         LastNameExtractor = [&index_lastname](const fileio::CSVRow& row) {
             return row[index_lastname].str();
         };
 
-        const size_t index_displayname = find_field_index(header,
+        const auto index_displayname = find_field_index(header,
             std::regex{"display\\s[\\s\\w]*name", std::regex::icase} );
         DisplayNameExtractor = [&,this](const fileio::CSVRow& row) {
             if (index_displayname > -1) {
@@ -151,7 +151,7 @@ Contact::Contact(const fileio::CSVRow& entry, const ContactHeader& header)
 static void formatAsPhoneNumberInplace(std::string& phone_number)
 {
     // remove all whitespace
-    std::remove_if(phone_number.begin(), phone_number.end(), util::is_whitespace);
+    std::remove_if(phone_number.begin(), phone_number.end(), isspace);
 
     // place iterator at the end of the country calling code
     auto stritr = phone_number.begin();
@@ -200,10 +200,10 @@ void Contact::format()
     util::format_as_1line_proper_noun_inplace(DisplayName);
 
     // email address 1
-    std::remove_if(EmailAddress1.begin(), EmailAddress1.end(), util::is_whitespace);
+    std::remove_if(EmailAddress1.begin(), EmailAddress1.end(), isspace);
 
     // email address 1
-    std::remove_if(EmailAddress2.begin(), EmailAddress2.end(), util::is_whitespace);
+    std::remove_if(EmailAddress2.begin(), EmailAddress2.end(), isspace);
 
     // mobile phone number
     formatAsPhoneNumberInplace(MobilePhoneNumber);

@@ -10,6 +10,12 @@ namespace util
 {
 
     template <typename _Tp>
+    bool is_number(const std::basic_string<_Tp>& str)
+    {
+        return std::find_if_not(str.begin(), str.end(), isdigit) == str.end();
+    }
+
+    template <typename _Tp>
     auto pad_string_inplace(std::basic_string<_Tp>& str, size_t size, _Tp pad = ' ')
         -> std::basic_string<_Tp>&
     {
@@ -85,7 +91,7 @@ namespace util
     {
         str[0] = toupper(str[0]);
         for (size_t i = 1; i < str.size(); ++i) {
-            str[i] = is_whitespace(str[i-1]) ? toupper(str[i]) : tolower(str[i]);
+            str[i] = isspace(str[i-1]) ? toupper(str[i]) : tolower(str[i]);
         }
         return str;
     }
@@ -98,7 +104,7 @@ namespace util
         result.reserve(str.size());
         result.push_back(toupper(str[0]));
         for (size_t i = 1; i < str.size(); ++i) {
-            _Tp c = is_whitespace(str[i-1]) ? toupper(str[i]) : tolower(str[i]);
+            _Tp c = isspace(str[i-1]) ? toupper(str[i]) : tolower(str[i]);
             result.push_back(c);
         }
         return result;
@@ -108,10 +114,10 @@ namespace util
     auto format_as_1line_proper_noun_inplace(std::basic_string<_Tp>& str)
         -> std::basic_string<_Tp>&
     {
-        std::replace_if(str.begin(), str.end(), util::is_whitespace, ' ');
+        std::replace_if(str.begin(), str.end(), isspace, ' ');
         util::trim_string_inplace(str);
         str.erase(std::unique(str.begin(), str.end(),
-            [](char a, char b){ return a == b == ' '; } ), str.end());
+            [](char a, char b){ return a == ' ' && b == ' '; } ), str.end());
         util::format_as_proper_noun_inplace(str);
         return str;
     }
@@ -122,19 +128,6 @@ namespace util
     {
         std::basic_string<_Tp> newstr {str};
         return format_as_1line_proper_noun_inplace(newstr);
-    }
-
-    bool is_whitespace(int c)
-    {
-        static constexpr std::initializer_list<int> whitespace
-            = {' ','\t','\v','\f','\n','\r'};
-        return std::find(whitespace.begin(), whitespace.end(), c) != whitespace.end();
-    }
-
-    template <typename _Tp>
-    bool is_number(const std::basic_string<_Tp>& str)
-    {
-        return std::find_if_not(str.begin(), str.end(), isdigit) == str.end();
     }
 
 }
