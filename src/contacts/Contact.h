@@ -6,21 +6,24 @@
 
 #include <string>
 #include <unordered_set>
+#include <functional>
 
 class ContactHeader
 {
+    using ContactFieldExtractor = std::function<std::string(const fileio::CSVRow&)>;
+
 public:
     explicit ContactHeader() = default;
     ContactHeader(const fileio::CSVRow& header);
 
-    size_t LocationOfFirstName{-1};
-    size_t LocationOfLastName{-1};
-    size_t LocationOfDisplayName{-1};
-    size_t LocationOfEmailAddress1{-1};
-    size_t LocationOfEmailAddress2{-1};
-    size_t LocationOfWorkPhoneNumber{-1};
-    size_t LocationOfHomePhoneNumber{-1};
-    size_t LocationOfMobilePhoneNumber{-1};
+    ContactFieldExtractor FirstNameExtractor{};
+    ContactFieldExtractor LastNameExtractor{};
+    ContactFieldExtractor DisplayNameExtractor{};
+    ContactFieldExtractor EmailAddress1Extractor{};
+    ContactFieldExtractor EmailAddress2Extractor{};
+    ContactFieldExtractor MobilePhoneNumberExtractor{};
+    ContactFieldExtractor HomePhoneNumberExtractor{};
+    ContactFieldExtractor WorkPhoneNumberExtractor{};
 };
 
 class Contact
@@ -36,9 +39,9 @@ public:
     std::string DisplayName{};
     std::string EmailAddress1{};
     std::string EmailAddress2{};
-    std::string WorkPhoneNumber{};
-    std::string HomePhoneNumber{};
     std::string MobilePhoneNumber{};
+    std::string HomePhoneNumber{};
+    std::string WorkPhoneNumber{};
 };
 
 class AddressBook
