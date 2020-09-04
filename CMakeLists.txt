@@ -8,8 +8,8 @@ set("PROJECT_BINARY_NAME" "TranslateContacts")
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" OR
     "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"
 )
-    set ("CMAKE_CXX_FLAGS" "-Wall -Wextra -std=c++17 -ggdb -pthread")
-    set ("CMAKE_C_FLAGS"   "-Wall -Wextra -std=c++17 -ggdb -pthread")
+    set ("CMAKE_CXX_FLAGS" "-Wall -Wextra -std=c++20 -ggdb -pthread")
+    set ("CMAKE_C_FLAGS"   "-Wall -Wextra -std=c++20 -ggdb -pthread")
 endif()
 
 set("CMAKE_ARCHIVE_OUTPUT_DIRECTORY" ${CMAKE_CURRENT_SOURCE_DIR}/lib)

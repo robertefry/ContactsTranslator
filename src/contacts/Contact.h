@@ -2,135 +2,71 @@
 #pragma once
 
 #include "fileio/CSV.h"
+#include "util/serial.h"
 
 #include <string>
-#include <vector>
+#include <unordered_set>
 
-class ContactName
+class ContactHeader
 {
 public:
-    explicit ContactName() = default;
-    ContactName(const std::string&);
+    explicit ContactHeader() = default;
+    ContactHeader(const fileio::CSVRow& header);
 
-    auto format() -> ContactName&;
-    auto str() const -> std::string;
-
-public:
-    std::string contact_name{};
-};
-
-class ContactDOB
-{
-public:
-    explicit ContactDOB() = default;
-    ContactDOB(const std::string& day, const std::string& month, const std::string& year);
-
-    auto format() -> ContactDOB&;
-    auto str() const -> std::string;
-
-public:
-    std::string year{};
-    std::string month{};
-    std::string day{};
-};
-
-class EmailAddress
-{
-public:
-    EmailAddress() = default;
-    EmailAddress(const std::string&);
-
-    auto format() -> EmailAddress&;
-    auto str() const -> std::string;
-
-public:
-    std::string email_address{};
-};
-
-class PhoneNumber
-{
-public:
-    explicit PhoneNumber() = default;
-    PhoneNumber(const std::string&);
-
-    auto format() -> PhoneNumber&;
-    auto str() const -> std::string;
-
-public:
-    std::string phone_number{};
-};
-
-class ContactAddress
-{
-public:
-    explicit ContactAddress() = default;
-    ContactAddress(const std::string& address_1, const std::string& address_2,
-        const std::string& city, const std::string& county,
-        const std::string& country, const std::string& postcode );
-
-    auto format() -> ContactAddress&;
-    auto str() const -> std::string;
-
-public:
-    std::string address_1;
-    std::string address_2;
-    std::string city;
-    std::string county;
-    std::string country;
-    std::string postcode;
-};
-
-class ContactJob
-{
-public:
-    explicit ContactJob() = default;
-    ContactJob(const std::string& job_title,
-        const std::string& department, const std::string& organisation);
-
-    auto format() -> ContactJob&;
-    auto str() const -> std::string;
-
-public:
-    std::string job_title;
-    std::string department;
-    std::string organisation;
-};
-
-class WebsiteAddress
-{
-public:
-    explicit WebsiteAddress() = default;
-    WebsiteAddress(const std::string&);
-
-    auto format() -> WebsiteAddress&;
-    auto str() const -> std::string;
-
-public:
-    std::string address;
+    size_t LocationOfFirstName{-1};
+    size_t LocationOfLastName{-1};
+    size_t LocationOfDisplayName{-1};
+    size_t LocationOfEmailAddress1{-1};
+    size_t LocationOfEmailAddress2{-1};
+    size_t LocationOfWorkPhoneNumber{-1};
+    size_t LocationOfHomePhoneNumber{-1};
+    size_t LocationOfMobilePhoneNumber{-1};
 };
 
 class Contact
 {
 public:
-    Contact() = default;
-    // TODO Contact(const fileio::CSVRow&);
+    explicit Contact() = default;
+    Contact(const fileio::CSVRow& entry, const ContactHeader& header);
+
+    void format();
+
+    std::string FirstName{};
+    std::string LastName{};
+    std::string DisplayName{};
+    std::string EmailAddress1{};
+    std::string EmailAddress2{};
+    std::string WorkPhoneNumber{};
+    std::string HomePhoneNumber{};
+    std::string MobilePhoneNumber{};
+};
+
+class AddressBook
+{
+    using ContactSet = std::unordered_set<Contact,
+        util::serial_hash<Contact>,util::serial_equal_to<Contact> >;
+
+public:
+    explicit AddressBook() = default;
+
+    inline auto empty() { return m_Contacts.empty(); }
+    inline auto size() { return m_Contacts.size(); }
+    inline auto begin() { return m_Contacts.begin(); }
+    inline auto end() { return m_Contacts.end(); }
+    inline auto cbegin() { return m_Contacts.cbegin(); }
+    inline auto cend() { return m_Contacts.cend(); }
+
+    inline auto find(const Contact& contact) { return m_Contacts.find(contact); }
+    inline auto find(const Contact& contact) const { return m_Contacts.find(contact); }
+
+    inline void insert(const Contact& contact) { m_Contacts.insert(contact); }
+    inline void insert(Contact&& contact) { m_Contacts.insert(std::forward<Contact>(contact)); }
+    inline auto erase(const Contact&& contact) { return m_Contacts.erase(contact); }
+    inline auto erase(ContactSet::const_iterator itr) { return m_Contacts.erase(itr); }
+    inline auto erase(ContactSet::const_iterator first, ContactSet::const_iterator last)
+        { return m_Contacts.erase(first, last); }
+    inline void clear() { m_Contacts.clear(); }
 
 protected:
-    ContactName m_FirstName{};
-    ContactName m_LastName{};
-    ContactName m_DisplayName{};
-    ContactName m_NickName{};
-    ContactDOB m_DateOfBirth{};
-    std::vector<EmailAddress> m_EmailAddressList{};
-    PhoneNumber m_WorkPhoneNumber{};
-    PhoneNumber m_HomePhoneNumber{};
-    PhoneNumber m_MobilePhoneNumber{};
-    std::string m_FaxNumber{};
-    std::string m_PagerNumber{};
-    ContactAddress m_HomeAddress{};
-    ContactAddress m_WorkAddress{};
-    ContactJob m_WorkDetails{};
-    std::vector<std::string> m_WebPages{};
-    std::vector<std::string> m_CustomFields{};
-    std::string m_Notes{};
+    ContactSet m_Contacts{};
 };
