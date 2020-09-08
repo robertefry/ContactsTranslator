@@ -7,16 +7,19 @@
 
 /******************************************************************************/
 /* CSVCell ********************************************************************/
-fileio::CSVCell::CSVCell(const std::string& str)
+fileio::CSVCell::CSVCell(const std::string& str, size_t row, size_t col)
     : m_String{str}
+    , m_Row{row}
+    , m_Col{col}
 {
 }
 /******************************************************************************/
 
 /******************************************************************************/
 /* CSVRow *********************************************************************/
-fileio::CSVRow::CSVRow(const std::initializer_list<CSVCell>& cells)
+fileio::CSVRow::CSVRow(const std::vector<CSVCell>& cells, size_t row)
     : std::vector<CSVCell>{cells}
+    , m_Row{row}
 {
     for (size_t j = 0; j < size(); ++j) {
         at(j).m_Row = m_Row;
@@ -43,7 +46,7 @@ auto fileio::CSVRow::str() const -> std::string
 
 /******************************************************************************/
 /* CSVTable *******************************************************************/
-fileio::CSVTable::CSVTable(const std::initializer_list<CSVRow>& rows)
+fileio::CSVTable::CSVTable(const std::vector<CSVRow>& rows)
     : std::vector<CSVRow>{rows}
 {
     for (size_t i = 0; i < size(); ++i) {
@@ -121,19 +124,20 @@ auto fileio::CSVReader::ReadCSVTable(std::istream& istr, char delim)
     -> fileio::CSVTable
 {
     CSVTable table;
-    while (!istr.eof())
+    for (size_t numrow = 0; !istr.eof(); ++numrow)
     {
-        CSVRow row;
+        CSVRow row{{}, numrow};
         std::string line;
         std::getline(istr, line);
 
         std::string str;
         std::stringstream line_stream {line};
+        size_t numcol = 0;
         while (std::getline(line_stream, str, delim)) {
-            row.push_back(CSVCell{str});
+            row.push_back(CSVCell{str, numrow, numcol++});
         }
         if (!line_stream && str.empty()) {
-            row.push_back(CSVCell{});
+            row.push_back(CSVCell{"", numrow, numcol++});
         }
         table.push_back(row);
     }

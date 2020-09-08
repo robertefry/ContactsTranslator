@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include "util/collection.h"
+
 #include <cstring>
 #include <string>
 #include <sstream>
@@ -117,7 +119,7 @@ namespace util
         std::replace_if(str.begin(), str.end(), isspace, ' ');
         util::trim_string_inplace(str);
         str.erase(std::unique(str.begin(), str.end(),
-            [](char a, char b){ return a == ' ' && b == ' '; } ), str.end());
+            [](_Tp a, _Tp b){ return a == ' ' && b == ' '; } ), str.end());
         util::format_as_proper_noun_inplace(str);
         return str;
     }
@@ -128,6 +130,47 @@ namespace util
     {
         std::basic_string<_Tp> newstr {str};
         return format_as_1line_proper_noun_inplace(newstr);
+    }
+
+    template <typename _Tp>
+    void formatAsPhoneNumberInplace(std::basic_string<_Tp>& phone_number)
+    {
+        // remove all whitespace
+        std::remove_if(phone_number.begin(), phone_number.end(), isspace);
+
+        // place iterator at the end of the country calling code
+        auto stritr = phone_number.begin();
+        if (phone_number.at(0) == '+' && phone_number.size() >= 3)
+        {
+            const std::unordered_map<_Tp,std::initializer_list<_Tp>> long_callcode_map {
+                {'0', { } },
+                {'1', { } },
+                {'2', { '1', '2', '3', '4', '5', '6', '9' } },
+                {'3', { '5', '7', '8' } },
+                {'4', { '2' } },
+                {'5', { '0', '9' } },
+                {'6', { '7', '8', '9' } },
+                {'7', { } },
+                {'8', { '0', '5', '7', '8' } },
+                {'9', { '6', '7', '9' } }
+            };
+            if (util::multi_compare_or(phone_number.at(2),
+                long_callcode_map.at(phone_number.at(1)) ))
+            {
+                stritr += 4;
+            } else {
+                stritr += 3;
+            }
+        }
+
+        // Insert spaces where formatting requires
+        if (stritr != phone_number.begin()) {
+            phone_number.insert(stritr, ' ');
+        }
+        if (stritr + 6 < phone_number.end()) {
+            stritr += 6;
+            phone_number.insert(stritr, ' ');
+        }
     }
 
 }

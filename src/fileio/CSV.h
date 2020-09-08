@@ -18,17 +18,16 @@ class CSVCell
     friend CSVRow;
 
 public:
-    explicit CSVCell() = default;
-    CSVCell(const std::string&);
+    CSVCell(const std::string&, size_t row, size_t col);
 
     inline auto row() const { return m_Row; }
     inline auto col() const { return m_Col; }
     inline auto str() const -> const std::string& { return m_String; }
 
 protected:
+    std::string m_String{};
     size_t m_Row{};
     size_t m_Col{};
-    std::string m_String{};
 };
 
 class CSVRow : public std::vector<CSVCell>
@@ -36,8 +35,7 @@ class CSVRow : public std::vector<CSVCell>
     friend CSVTable;
 
 public:
-    explicit CSVRow() = default;
-    CSVRow(const std::initializer_list<CSVCell>&);
+    CSVRow(const std::vector<CSVCell>&, size_t row);
 
     inline auto row() const { return m_Row; }
     auto ncols() const -> size_t;
@@ -52,7 +50,7 @@ class CSVTable : public std::vector<CSVRow>
 {
 public:
     explicit CSVTable() = default;
-    CSVTable(const std::initializer_list<CSVRow>&);
+    CSVTable(const std::vector<CSVRow>&);
 
     auto nrows() const -> size_t;
     auto ncols() const -> size_t;

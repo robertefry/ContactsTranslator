@@ -1,5 +1,6 @@
 
 #include "fileio/CSV.h"
+#include "contacts/Contact.h"
 
 #include <iostream>
 
@@ -12,4 +13,7 @@ int main()
 
     auto table = fileio::CSVReader::ReadCSVTable(csv, ',');
     std::cout << table.str() << std::endl;
+
+    auto address_book = AddressBook{table};
+    std::cout << address_book.str() << std::endl;
 }
