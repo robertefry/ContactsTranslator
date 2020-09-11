@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include "bits/table_view.h"
+
 #include <istream>
 #include <string>
 #include <vector>
@@ -55,6 +57,7 @@ public:
     auto nrows() const -> size_t;
     auto ncols() const -> size_t;
 
+    auto table_view() const -> bits::TableView<const CSVCell>;
     auto str() const -> std::string;
 };
 

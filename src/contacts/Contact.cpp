@@ -1,10 +1,8 @@
 
 #include "Contact.h"
-// #include "util/collection.h"
 #include "util/string.h"
 
-// #include <vector>
-// #include <map>
+#include <vector>
 #include <regex>
 
 #include <iostream>
@@ -243,75 +241,44 @@ AddressBook::AddressBook(const fileio::CSVTable& table)
     }
 }
 
+auto AddressBook::table_view() const -> bits::TableView<const std::string>
+{
+    std::vector<std::vector<const std::string*>> string_table;
+    string_table.reserve(this->size()+1);
+    {
+        std::vector<const std::string*> string_entry;
+        string_entry.reserve(8);
+        string_entry.push_back(&FieldMapper.MapFirstName.FieldName);
+        string_entry.push_back(&FieldMapper.MapLastName.FieldName);
+        string_entry.push_back(&FieldMapper.MapDisplayName.FieldName);
+        string_entry.push_back(&FieldMapper.MapEmailAddress1.FieldName);
+        string_entry.push_back(&FieldMapper.MapEmailAddress2.FieldName);
+        string_entry.push_back(&FieldMapper.MapMobilePhoneNumber.FieldName);
+        string_entry.push_back(&FieldMapper.MapHomePhoneNumber.FieldName);
+        string_entry.push_back(&FieldMapper.MapWorkPhoneNumber.FieldName);
+        string_table.push_back(std::move(string_entry));
+    }
+    for (auto itr = this->cbegin(); itr != this->cend(); ++itr) {
+        std::vector<const std::string*> string_entry;
+        string_entry.reserve(8);
+        string_entry.push_back(&itr->FirstName);
+        string_entry.push_back(&itr->LastName);
+        string_entry.push_back(&itr->DisplayName);
+        string_entry.push_back(&itr->EmailAddress1);
+        string_entry.push_back(&itr->EmailAddress2);
+        string_entry.push_back(&itr->MobilePhoneNumber);
+        string_entry.push_back(&itr->HomePhoneNumber);
+        string_entry.push_back(&itr->WorkPhoneNumber);
+        string_table.push_back(std::move(string_entry));
+    }
+    return bits::TableView<const std::string>{string_table};
+}
+
 auto AddressBook::str() const -> std::string
 {
     if (empty()) return "";
 
-    const std::vector<std::string> header_text {
-        FieldMapper.MapFirstName.FieldName,
-        FieldMapper.MapLastName.FieldName,
-        FieldMapper.MapDisplayName.FieldName,
-        FieldMapper.MapEmailAddress1.FieldName,
-        FieldMapper.MapEmailAddress2.FieldName,
-        FieldMapper.MapMobilePhoneNumber.FieldName,
-        FieldMapper.MapHomePhoneNumber.FieldName,
-        FieldMapper.MapWorkPhoneNumber.FieldName,
-    };
-
-    // Calculate widths of each column
-    std::vector<size_t> widths(header_text.size());
-    for (size_t j = 0; j < header_text.size(); ++j) {
-        widths[j] = header_text[j].size();
-    }
-    for (const auto& contact : *this) {
-        widths[0] = std::max(widths[0], contact.FirstName.size());
-        widths[1] = std::max(widths[1], contact.LastName.size());
-        widths[2] = std::max(widths[2], contact.DisplayName.size());
-        widths[3] = std::max(widths[3], contact.EmailAddress1.size());
-        widths[4] = std::max(widths[4], contact.EmailAddress2.size());
-        widths[5] = std::max(widths[5], contact.MobilePhoneNumber.size());
-        widths[6] = std::max(widths[6], contact.HomePhoneNumber.size());
-        widths[7] = std::max(widths[7], contact.WorkPhoneNumber.size());
-    }
-
-    std::ostringstream ss;
-    // top border
-    ss << "╭─" << util::repeat_string("─", widths.at(0));
-    for (size_t i = 1; i < widths.size(); ++i)
-        ss << "───" << util::repeat_string("─", widths.at(i));
-    ss << "─╮" << std::endl;
-    // header items
-    ss << "│ "  << util::pad_string(header_text[0], widths.at(0));
-    for (size_t j = 1; j < header_text.size(); ++j) {
-        ss << " ┊ " << util::pad_string(header_text[j], widths.at(j));
-    }
-    ss <<  " │" << std::endl;
-    // header divider
-    ss << "│ " << util::repeat_string("┄", widths.at(0));
-    for (size_t j = 1; j < widths.size(); ++j) {
-        ss << "┄┼┄" << util::repeat_string("┄", widths.at(j));
-    }
-    ss << " │" << std::endl;
-    // csv entries
-    for (auto contact_itr = this->cbegin();
-        contact_itr != this->cend(); ++contact_itr )
-    {
-        ss << "│ "  << util::pad_string(contact_itr->FirstName, widths.at(0));
-        ss << " ┊ " << util::pad_string(contact_itr->LastName, widths.at(1));
-        ss << " ┊ " << util::pad_string(contact_itr->DisplayName, widths.at(2));
-        ss << " ┊ " << util::pad_string(contact_itr->EmailAddress1, widths.at(3));
-        ss << " ┊ " << util::pad_string(contact_itr->EmailAddress2, widths.at(4));
-        ss << " ┊ " << util::pad_string(contact_itr->MobilePhoneNumber, widths.at(5));
-        ss << " ┊ " << util::pad_string(contact_itr->HomePhoneNumber, widths.at(6));
-        ss << " ┊ " << util::pad_string(contact_itr->WorkPhoneNumber, widths.at(7));
-        ss <<  " │" << std::endl;
-    }
-    // bottom border
-    ss << "╰─" << util::repeat_string("─", widths.at(0));
-    for (size_t i = 1; i < widths.size(); ++i)
-        ss << "───" << util::repeat_string("─", widths.at(i));
-    ss << "─╯";
-
-    return ss.str();
+    const auto to_string = [](const auto& str) { return str; };
+    return table_view().str(to_string);
 }
 /******************************************************************************/

@@ -67,54 +67,26 @@ auto fileio::CSVTable::ncols() const -> size_t
         })->size();
 }
 
+auto fileio::CSVTable::table_view() const -> bits::TableView<const CSVCell>
+{
+    std::vector<std::vector<const CSVCell*>> table;
+    table.resize(nrows());
+    for (size_t i = 0; i < nrows(); ++i) {
+        table[i].resize(ncols());
+        for (size_t j = 0; j < ncols(); ++j) {
+            table[i][j] = &(*this)[i][j];
+        }
+    }
+
+    return bits::TableView<const CSVCell>{table};
+}
+
 auto fileio::CSVTable::str() const -> std::string
 {
     if (empty()) return "";
 
-    // Calculate widths of each column
-    std::vector<size_t> widths;
-    widths.reserve(ncols());
-    for (size_t j = 0; j < ncols(); ++j) {
-        size_t max_width = at(0).at(j).str().size();
-        for (size_t i = 1; i < nrows(); ++i) {
-            max_width = std::max(max_width, at(i).at(j).str().size());
-        }
-        widths.push_back(max_width);
-    }
-
-    std::ostringstream ss;
-    // top border
-    ss << "╭─" << util::repeat_string("─", widths.at(0));
-    for (size_t i = 1; i < widths.size(); ++i)
-        ss << "───" << util::repeat_string("─", widths.at(i));
-    ss << "─╮" << std::endl;
-    // header items
-    ss << "│ " << util::pad_string(at(0).at(0).str(), widths.at(0));
-    for (size_t j = 1; j < ncols(); ++j) {
-        ss << " ┊ " << util::pad_string(at(0).at(j).str(), widths.at(j));
-    }
-    ss << " │" << std::endl;
-    // header divider
-    ss << "│ " << util::repeat_string("┄", widths.at(0));
-    for (size_t j = 1; j < ncols(); ++j) {
-        ss << "┄┼┄" << util::repeat_string("┄", widths.at(j));
-    }
-    ss << " │" << std::endl;
-    // csv entries
-    for (size_t i = 1; i < nrows(); ++i) {
-        ss << "│ " << util::pad_string(at(i).at(0).str(), widths.at(0));
-        for (size_t j = 1; j < ncols(); ++j) {
-            ss << " ┊ " << util::pad_string(at(i).at(j).str(), widths.at(j));
-        }
-        ss << " │" << std::endl;
-    }
-    // bottom border
-    ss << "╰─" << util::repeat_string("─", widths.at(0));
-    for (size_t i = 1; i < widths.size(); ++i)
-        ss << "───" << util::repeat_string("─", widths.at(i));
-    ss << "─╯";
-
-    return ss.str();
+    const auto to_str = [](const CSVCell& cell) { return cell.str(); };
+    return table_view().str(to_str);
 }
 /******************************************************************************/
 

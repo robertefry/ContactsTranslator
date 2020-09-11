@@ -3,6 +3,7 @@
 
 #include "fileio/CSV.h"
 #include "util/hash.h"
+#include "bits/table_view.h"
 
 #include <unordered_set>
 #include <functional>
@@ -83,6 +84,7 @@ public:
     explicit AddressBook() = default;
     AddressBook(const fileio::CSVTable& table);
 
+    auto table_view() const -> bits::TableView<const std::string>;
     auto str() const -> std::string;
 
     const ContactCSVInputMap FieldMapper{};
