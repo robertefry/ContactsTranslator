@@ -7,9 +7,9 @@
 int main()
 {
     constexpr char csv[] =
-        "First Name,Last Name,Email Address\n"
-        "Robert,Fry,robert.fry@email.com\n"
-        "Andrew,Fry,andrew.fry@email.com";
+        "First Name,Last Name,Email Address 2,Email Address 1\n"
+        "Robert,Fry,robert.fry@email.com,robert@fry.xyz\n"
+        "Andrew,Fry,andrew.fry@email.com,andrew@fry.xyz";
 
     auto table = fileio::CSVReader::ReadCSVTable(csv, ',');
     std::cout << table.str() << std::endl;

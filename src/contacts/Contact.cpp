@@ -19,6 +19,8 @@ ContactCSVInputMap::ContactCSVInputMap(const fileio::CSVRow& header)
                 field_matches.push_back(cell);
             }
         }
+        std::sort(field_matches.begin(), field_matches.end(),
+            [](const auto& cell1, const auto& cell2) { return cell1.str() < cell2.str(); } );
         return field_matches;
     };
 
