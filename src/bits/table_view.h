@@ -25,10 +25,8 @@ namespace bits
         TableView(size_t nrows, size_t ncols, ForwardIterator itr);
 
         TableView(size_t nrows, size_t ncols, const std::vector<_Tp>&);
-        TableView(size_t nrows, size_t ncols, const std::vector<const _Tp&>&);
         TableView(size_t nrows, size_t ncols, const std::vector<_Tp*>&);
         TableView(const std::vector<std::vector<_Tp>>&);
-        TableView(const std::vector<std::vector<const _Tp&>>&);
         TableView(const std::vector<std::vector<_Tp*>>&);
 
         TableView(const TableView&);
@@ -89,22 +87,6 @@ bits::TableView<_Tp>::TableView(size_t nrows, size_t ncols, const std::vector<_T
 }
 
 template <typename _Tp>
-bits::TableView<_Tp>::TableView(size_t nrows, size_t ncols, const std::vector<const _Tp&>& vec)
-    : m_TableView{}
-    , m_NumRows{nrows}
-    , m_NumCols{ncols}
-{
-    static_assert(vec.size() >= nrows*ncols);
-    m_TableView.resize(m_NumRows);
-    for (size_t i = 0; i < m_NumRows; ++i) {
-        m_TableView[i].resize(m_NumCols);
-        for (size_t j = 0; j < m_NumCols; ++j) {
-            m_TableView[i][j] = &vec[i * m_NumCols + j];
-        }
-    }
-}
-
-template <typename _Tp>
 bits::TableView<_Tp>::TableView(size_t nrows, size_t ncols, const std::vector<_Tp*>& vec)
     : m_TableView{}
     , m_NumRows{nrows}
@@ -122,21 +104,6 @@ bits::TableView<_Tp>::TableView(size_t nrows, size_t ncols, const std::vector<_T
 
 template <typename _Tp>
 bits::TableView<_Tp>::TableView(const std::vector<std::vector<_Tp>>& vec)
-    : m_TableView{}
-    , m_NumRows{vec.size()}
-    , m_NumCols{vec.empty() ? 0 : vec[0].size()}
-{
-    m_TableView.resize(m_NumRows);
-    for (size_t i = 0; i < m_NumRows; ++i) {
-        m_TableView[i].resize(m_NumCols);
-        for (size_t j = 0; j < m_NumCols; ++j) {
-            m_TableView[i][j] = &vec[i][j];
-        }
-    }
-}
-
-template <typename _Tp>
-bits::TableView<_Tp>::TableView(const std::vector<std::vector<const _Tp&>>& vec)
     : m_TableView{}
     , m_NumRows{vec.size()}
     , m_NumCols{vec.empty() ? 0 : vec[0].size()}
