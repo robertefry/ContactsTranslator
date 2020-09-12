@@ -53,6 +53,7 @@ class CSVTable : public std::vector<CSVRow>
 public:
     explicit CSVTable() = default;
     CSVTable(const std::vector<CSVRow>&);
+    CSVTable(const bits::TableView<const std::string>&);
 
     auto nrows() const -> size_t;
     auto ncols() const -> size_t;
@@ -67,6 +68,12 @@ namespace CSVReader
         -> CSVTable;
     auto ReadCSVTable(const std::string&, char delim)
         -> CSVTable;
+}
+
+namespace CSVWriter
+{
+    // void WriteCSVTable(std::istream&, char delim);
+    void WriteCSVTable(const fileio::CSVTable&, std::string&);
 }
 
 } // namespace fileio

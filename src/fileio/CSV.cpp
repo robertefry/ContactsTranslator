@@ -54,6 +54,21 @@ fileio::CSVTable::CSVTable(const std::vector<CSVRow>& rows)
     }
 }
 
+#include <iostream>
+
+fileio::CSVTable::CSVTable(const bits::TableView<const std::string>& tableview)
+{
+    reserve(tableview.nrows());
+    for (size_t i = 0; i < tableview.nrows(); ++i) {
+        CSVRow row{{}, i};
+        row.reserve(tableview.ncols());
+        for (size_t j = 0; j < tableview.ncols(); ++j) {
+            row.push_back(CSVCell{*tableview.table()[i][j], i, j});
+        }
+        push_back(std::move(row));
+    }
+}
+
 auto fileio::CSVTable::nrows() const -> size_t
 {
     return empty() ? 0 : size();
@@ -121,4 +136,23 @@ auto fileio::CSVReader::ReadCSVTable(const std::string& str, char delim) -> CSVT
     std::istringstream istr(str);
     return CSVReader::ReadCSVTable(istr, delim);
 }
-// /******************************************************************************/
+/******************************************************************************/
+
+/******************************************************************************/
+/* CSVWriter ******************************************************************/
+void fileio::CSVWriter::WriteCSVTable(const fileio::CSVTable& table, std::string& str)
+{
+    std::ostringstream ostr;
+    for (size_t i = 0; i < table.nrows()-1; ++i) {
+        for (size_t j = 0; j < table.ncols()-1; ++j) {
+            ostr << table[i][j].str() << ',';
+        }
+        ostr << table[i][table.ncols()-1].str() << std::endl;
+    }
+    for (size_t j = 0; j < table.ncols()-1; ++j) {
+        ostr << table[table.nrows()-1][j].str() << ',';
+    }
+    ostr << table[table.nrows()-1][table.ncols()-1].str();
+    str = ostr.str();
+}
+/******************************************************************************/
