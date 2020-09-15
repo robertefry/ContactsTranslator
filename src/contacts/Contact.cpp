@@ -200,20 +200,20 @@ void Contact::format()
     // display name
     util::format_as_1line_proper_noun_inplace(DisplayName);
 
-    // email address 1
+    // // email address 1
     std::remove_if(EmailAddress1.begin(), EmailAddress1.end(), isspace);
 
     // email address 1
     std::remove_if(EmailAddress2.begin(), EmailAddress2.end(), isspace);
 
     // mobile phone number
-    util::formatAsPhoneNumberInplace(MobilePhoneNumber);
+    util::format_as_phone_number_inplace(MobilePhoneNumber);
 
     // home phone number
-    util::formatAsPhoneNumberInplace(HomePhoneNumber);
+    util::format_as_phone_number_inplace(HomePhoneNumber);
 
     // work phone number
-    util::formatAsPhoneNumberInplace(WorkPhoneNumber);
+    util::format_as_phone_number_inplace(WorkPhoneNumber);
 }
 
 bool operator==(const Contact& contact1, const Contact& contact2)
@@ -238,15 +238,28 @@ AddressBook::AddressBook(const fileio::CSVTable& table)
     auto itr = table.cbegin();
     if (itr != table.cend()) {
         for (++itr; itr != table.cend(); ++itr) {
-            this->insert(Contact{*itr, FieldMapper});
+            m_Contacts.insert(Contact{*itr, FieldMapper});
         }
+    }
+}
+
+void AddressBook::format_all()
+{
+    ContactSet contacts;
+    for (auto contact : m_Contacts) {
+        contact.format();
+        contacts.insert(contact);
+    }
+    m_Contacts.clear();
+    for (auto& contact : contacts) {
+        m_Contacts.insert(std::move(contact));
     }
 }
 
 auto AddressBook::table_view() const -> bits::TableView<const std::string>
 {
     std::vector<std::vector<const std::string*>> string_table;
-    string_table.reserve(this->size()+1);
+    string_table.reserve(m_Contacts.size()+1);
     {
         std::vector<const std::string*> string_entry;
         string_entry.reserve(8);
@@ -260,7 +273,7 @@ auto AddressBook::table_view() const -> bits::TableView<const std::string>
         string_entry.push_back(&FieldMapper.MapWorkPhoneNumber.FieldName);
         string_table.push_back(std::move(string_entry));
     }
-    for (auto itr = this->cbegin(); itr != this->cend(); ++itr) {
+    for (auto itr = m_Contacts.cbegin(); itr != m_Contacts.cend(); ++itr) {
         std::vector<const std::string*> string_entry;
         string_entry.reserve(8);
         string_entry.push_back(&itr->FirstName);
@@ -278,7 +291,7 @@ auto AddressBook::table_view() const -> bits::TableView<const std::string>
 
 auto AddressBook::str() const -> std::string
 {
-    if (empty()) return "";
+    if (m_Contacts.empty()) return "";
 
     const auto to_string = [](const auto& str) { return str; };
     return table_view().str(to_string);

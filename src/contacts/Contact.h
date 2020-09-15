@@ -78,14 +78,19 @@ namespace std {
     };
 }
 
-class AddressBook : public std::unordered_set<Contact>
+class AddressBook
 {
+    using ContactSet = std::unordered_set<Contact>;
 public:
     explicit AddressBook() = default;
     AddressBook(const fileio::CSVTable& table);
 
+    void format_all();
     auto table_view() const -> bits::TableView<const std::string>;
     auto str() const -> std::string;
 
     const ContactCSVInputMap FieldMapper{};
+
+protected:
+    ContactSet m_Contacts{};
 };

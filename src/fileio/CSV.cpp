@@ -2,6 +2,7 @@
 #include "CSV.h"
 #include "util/string.h"
 
+#include <iostream>
 #include <sstream>
 #include <algorithm>
 
@@ -54,8 +55,6 @@ fileio::CSVTable::CSVTable(const std::vector<CSVRow>& rows)
     }
 }
 
-#include <iostream>
-
 fileio::CSVTable::CSVTable(const bits::TableView<const std::string>& tableview)
 {
     reserve(tableview.nrows());
@@ -102,6 +101,7 @@ auto fileio::CSVTable::str() const -> std::string
 
     const auto to_str = [](const CSVCell& cell) { return cell.str(); };
     return table_view().str(to_str);
+#include <sstream>
 }
 /******************************************************************************/
 
@@ -110,24 +110,25 @@ auto fileio::CSVTable::str() const -> std::string
 auto fileio::CSVReader::ReadCSVTable(std::istream& istr, char delim)
     -> fileio::CSVTable
 {
+    std::cout << "Trying to read from CSV table..." << std::endl;
     CSVTable table;
-    for (size_t numrow = 0; !istr.eof(); ++numrow)
+
+    std::string line;
+    for (size_t numrow = 0; std::getline(istr, line); ++numrow)
     {
+        std::cout << "  => Reading row " << numrow << std::endl;
         CSVRow row{{}, numrow};
-        std::string line;
-        std::getline(istr, line);
 
         std::string str;
-        std::stringstream line_stream {line};
-        size_t numcol = 0;
-        while (std::getline(line_stream, str, delim)) {
-            row.push_back(CSVCell{str, numrow, numcol++});
+        std::stringstream line_stream{line};
+        for (size_t numcol = 0; std::getline(line_stream, str, delim); ++numcol)
+        {
+            CSVCell cell{str, numrow, numcol};
+            row.push_back(std::move(cell));
         }
-        if (!line_stream && str.empty()) {
-            row.push_back(CSVCell{"", numrow, numcol++});
-        }
-        table.push_back(row);
+        table.push_back(std::move(row));
     }
+    std::cout << "Done!" << std::endl;
     return table;
 }
 
@@ -140,6 +141,13 @@ auto fileio::CSVReader::ReadCSVTable(const std::string& str, char delim) -> CSVT
 
 /******************************************************************************/
 /* CSVWriter ******************************************************************/
+void fileio::CSVWriter::WriteCSVTable(const fileio::CSVTable& table, std::ostream& ostr)
+{
+    std::string str;
+    WriteCSVTable(table, str);
+    ostr << str;
+}
+
 void fileio::CSVWriter::WriteCSVTable(const fileio::CSVTable& table, std::string& str)
 {
     std::ostringstream ostr;

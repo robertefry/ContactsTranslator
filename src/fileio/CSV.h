@@ -72,7 +72,7 @@ namespace CSVReader
 
 namespace CSVWriter
 {
-    // void WriteCSVTable(std::istream&, char delim);
+    void WriteCSVTable(const fileio::CSVTable&, std::ostream&);
     void WriteCSVTable(const fileio::CSVTable&, std::string&);
 }
 

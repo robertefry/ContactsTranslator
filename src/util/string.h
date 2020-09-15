@@ -91,6 +91,7 @@ namespace util
     auto format_as_proper_noun_inplace(std::basic_string<_Tp>& str)
         -> std::basic_string<_Tp>&
     {
+        if (str.empty()) return str;
         str[0] = toupper(str[0]);
         for (size_t i = 1; i < str.size(); ++i) {
             str[i] = isspace(str[i-1]) ? toupper(str[i]) : tolower(str[i]);
@@ -102,6 +103,7 @@ namespace util
     auto format_as_proper_noun(const std::basic_string<_Tp>& str)
         -> std::basic_string<_Tp>
     {
+        if (str.empty()) return str;
         std::basic_string<_Tp> result;
         result.reserve(str.size());
         result.push_back(toupper(str[0]));
@@ -116,6 +118,7 @@ namespace util
     auto format_as_1line_proper_noun_inplace(std::basic_string<_Tp>& str)
         -> std::basic_string<_Tp>&
     {
+        if (str.empty()) return str;
         std::replace_if(str.begin(), str.end(), isspace, ' ');
         util::trim_string_inplace(str);
         str.erase(std::unique(str.begin(), str.end(),
@@ -128,19 +131,23 @@ namespace util
     auto format_as_1line_proper_noun(const std::basic_string<_Tp>& str)
         -> std::basic_string<_Tp>
     {
+        if (str.empty()) return str;
         std::basic_string<_Tp> newstr {str};
         return format_as_1line_proper_noun_inplace(newstr);
     }
 
     template <typename _Tp>
-    void formatAsPhoneNumberInplace(std::basic_string<_Tp>& phone_number)
+    auto format_as_phone_number_inplace(std::basic_string<_Tp>& str)
+        -> std::basic_string<_Tp>&
     {
+        if (str.empty()) return str;
+
         // remove all whitespace
-        std::remove_if(phone_number.begin(), phone_number.end(), isspace);
+        std::remove_if(str.begin(), str.end(), isspace);
 
         // place iterator at the end of the country calling code
-        auto stritr = phone_number.begin();
-        if (phone_number.at(0) == '+' && phone_number.size() >= 3)
+        auto stritr = str.begin();
+        if (str.at(0) == '+' && str.size() >= 3)
         {
             const std::unordered_map<_Tp,std::initializer_list<_Tp>> long_callcode_map {
                 {'0', { } },
@@ -154,8 +161,8 @@ namespace util
                 {'8', { '0', '5', '7', '8' } },
                 {'9', { '6', '7', '9' } }
             };
-            if (util::multi_compare_or(phone_number.at(2),
-                long_callcode_map.at(phone_number.at(1)) ))
+            if (util::multi_compare_or(str.at(2),
+                long_callcode_map.at(str.at(1)) ))
             {
                 stritr += 4;
             } else {
@@ -164,13 +171,15 @@ namespace util
         }
 
         // Insert spaces where formatting requires
-        if (stritr != phone_number.begin()) {
-            phone_number.insert(stritr, ' ');
+        if (stritr != str.begin()) {
+            str.insert(stritr, ' ');
         }
-        if (stritr + 6 < phone_number.end()) {
+        if (stritr + 6 < str.end()) {
             stritr += 6;
-            phone_number.insert(stritr, ' ');
+            str.insert(stritr, ' ');
         }
+
+        return str;
     }
 
 }
